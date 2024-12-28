@@ -14,7 +14,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include<istream>
 using namespace std;
 
 
@@ -28,9 +28,9 @@ void ReadArray(char *arr)
     }
 }
 
-int calculateSize(char* arr) {
-    int count = 0;
-    for (int i = 0; arr[i] != '\0'; ++i) {
+size_t calculateSize(char* arr) {
+    size_t count = 0;
+    for (size_t i = 0; arr[i] != '\0'; ++i) {
         count++;
     }
     return count;
@@ -141,15 +141,126 @@ void AddNewFilm()
     delete[] movie;
 }
 
- 
+char* CopyCharArray(char* source, char* destination, size_t num) {
+    size_t i = 0;
+    for (; i < num && source[i] != '\0'; ++i) {
+        destination[i] = source[i];
+    }
+    destination[i] = '\0'; // Null-terminate the destination
+    return destination;
+}
+
+char* ReadLine(std::ifstream& inputFile) {
+    const size_t initialBufferSize = 256; // Starting size of the buffer
+    size_t bufferSize = initialBufferSize;
+    char* buffer = new char[bufferSize]; // Dynamically allocate memory
+    size_t length = 0;
+
+    while (inputFile) {
+        inputFile.getline(buffer + length, bufferSize - length); // Read into the remaining space
+        length += std::strlen(buffer + length);
+
+        if (inputFile.fail() && !inputFile.eof()) {
+            // Expand the buffer if it's not enough
+            inputFile.clear(); // Clear fail state
+            bufferSize *= 2;   // Double the buffer size
+            char* newBuffer = new char[bufferSize];
+            //TO DO: write own strcpy 
+            CopyCharArray(buffer, newBuffer, calculateSize(buffer));
+            delete[] buffer; // Free the old buffer
+            buffer = newBuffer;
+        }
+        else {
+            break; // Successfully read the line or reached EOF
+        }
+    }
+
+    // Null-terminate the line if not already done
+    if (length >= bufferSize) {
+        char* newBuffer = new char[length + 1];
+        CopyCharArray(buffer, newBuffer, calculateSize(buffer));
+        delete[] buffer;
+        buffer = newBuffer;
+    }
+    buffer[length] = '\0';
+
+    return buffer; // Return the dynamically allocated line
+}
+
+// Element: title, year, genre, producer, actors, rating
+// corespondingly, their numbers are 1,2,3...
+char* GetMovieElement(char* line, char delimiter, int elementNumber) {
+    int currentElement = 0; // Tracks the current element number
+    size_t start = 0;       // Start index for the current element
+    size_t lineLength = strlen(line); // Length of the input line
+    char* result = new char;
+
+    for (size_t i = 0; i <= lineLength; ++i) {
+        if (line[i] == delimiter || line[i] == '\0') { // Delimiter or end of string
+            currentElement++;
+            if (currentElement == elementNumber) {
+                size_t length = i - start; // Length of the current element
+                //strncpy(result, &line[start], length); // Copy the element to result
+                return CopyCharArray(&line[start], result, length);
+            }
+            start = i + 1; // Move start to the next character after the delimiter
+        }
+    }
+
+    // If elementNumber is out of range, return an empty string
+    result[0] = '\0';
+    return result;
+}
+
+// Element: title, year, genre, producer, actors, rating
+// corespondingly, their numbers are 1,2,3...
+void SearchByElement(int elementNumber)
+{
+    ifstream inputFile;
+    inputFile.open("IMDB.txt", fstream::in);
+
+    cout << "Search for: ";
+    cin.ignore();
+    char* elementToSearchFor = ReadUserInput();
+    bool moviesFound = false;
+
+    if (!inputFile) {
+        cout << "Failed to open the file!" << endl;
+        return;
+    }
+
+    // Read the file line by line
+    while (inputFile) {
+        char* line = ReadLine(inputFile);
+        if (*line != '\0') { // Skip empty lines
+            char* element = GetMovieElement(line, '|', elementNumber);
+            if (isContained(elementToSearchFor, element))
+            {
+                cout << line << std::endl;
+                moviesFound = true;
+            }
+            //delete[] title;
+        }
+        //delete[] title;
+        delete[] line;
+    }
+
+    if (!moviesFound)
+    {
+        cout << "No such movies found." << endl;
+    }
+
+    inputFile.close();
+}
+
 void SearchFilmByTitle()
 {
-    
+    SearchByElement(1);
 }
 
 void SearchFilmByGenre()
 {
-    
+    SearchByElement(3);
 }
 
 void SeeAllTheFilms()
@@ -169,7 +280,7 @@ void DeleteFilm()
 
 void RateFilm()
 {
-
+   
 }
 
 void  SortFilmsByRating()
@@ -184,7 +295,7 @@ void  SortFilmsByTitle()
 
 void ExitProgram()
 {
-    
+   
 }
 
 void MenuForAdmin() 
