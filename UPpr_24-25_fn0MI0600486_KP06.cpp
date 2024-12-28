@@ -14,68 +14,180 @@
 
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
-void ReadArray(char *arr, int size)
+
+void ReadArray(char *arr)
 {
-    while (*arr != '\0')
+    int i = 0;
+    while (arr[i] != '\0')
     {
-        cin.getline(arr, size);
-        arr++;
+        cin >> arr[i];
+        i++;
     }
 }
 
-void AddNewFilm() //administratorska rolq, za obavqne na nov film, vseki film zapochva s ovenka 5
+int calculateSize(char* arr) {
+    int count = 0;
+    for (int i = 0; arr[i] != '\0'; ++i) {
+        count++;
+    }
+    return count;
+}
+
+bool isContained(char* subStr, char* mainStr) {
+    size_t mainLen = calculateSize(mainStr), subLen = calculateSize(subStr);
+
+    // If substring is longer than main string, it can't be contained
+    if (subLen > mainLen) return false;
+
+    // Traverse the main string
+    for (size_t i = 0; i <= mainLen - subLen; ++i) {
+        size_t j = 0;
+
+        // Check if substring matches starting from current position
+        while (j < subLen && mainStr[i + j] == subStr[j]) {
+            j++;
+        }
+
+        if (j == subLen) return true;
+    }
+
+    return false;
+}
+
+char* ReadUserInput()
 {
-    char film;//dinamichna pamet!!
-    const int size= 100;
-    cout << "Write the title, year, genre, producer and actors:"<<endl;
-    cin >> film;
+    size_t capacity = 10;
+    size_t size = 0;
+    char* input = new char[capacity];
+    char c;
+
+    while ((c = cin.get()) != '\n') {
+        if (size == capacity - 1) {
+            // Double the capacity if the array is full
+            capacity *= 2;
+            char* temp = new char[capacity];
+            for (size_t i = 0; i < size; ++i) {
+                temp[i] = input[i];
+            }
+            delete[] input;
+            input = temp;
+        }
+        input[size++] = c;
+    }
+    input[size] = '\0'; // Null-terminate the string
+    return input;
+}
+
+// Function to concatenate six char arrays
+char* ConcatCharArrays(char* arr1, char* arr2, char* arr3, char* arr4, char* arr5, char* arr6) {
+
+    // Allocate memory for the concatenated string (+1 for null terminator +6 for the 6 delimiters)
+    char* result = new char[calculateSize(arr1) + calculateSize(arr2) + calculateSize(arr3) + calculateSize(arr4) + calculateSize(arr5) + calculateSize(arr6) + 1 + 6];
+
+    // Copy contents of each array into the result
+    size_t currentIndex = 0;
+    char* arrays[] = { arr1, arr2, arr3, arr4, arr5, arr6 };
+    for (char* arr : arrays) {
+        while (*arr != '\0') {
+            result[currentIndex++] = *arr++;
+           
+        }
+
+        //adding delimiter
+        result[currentIndex++] = '|';
+    }
+
+    // Null-terminate the result
+    result[currentIndex] = '\0';
+
+    return result;
+}
+
+void AddNewFilm() 
+{
+    cin.ignore();
+    cout << "Enter title:" << endl;
+    char* title = ReadUserInput();
+    cout << "Enter year:" << endl;
+    char* year = ReadUserInput();
+    cout << "Enter genre:" << endl;
+    char* genre = ReadUserInput();
+    cout << "Enter producer:" << endl;
+    char* producer = ReadUserInput();
+    cout << "Enter actors:" << endl;
+    char* actors = ReadUserInput();
+    //default rating
+    char rating[] = "5";
+
+    char* movie = ConcatCharArrays(title, year, genre, producer, actors, rating);
+  
     fstream myFyle;
-    myFyle.open("IMDB.txt", ios::out);//(write into txt) output from the program to the file
+    myFyle.open("IMDB.txt", ios::app);//(write into txt) output from the program to the file
     if (myFyle.is_open())
     {
-        myFyle << film;
+        myFyle << movie << endl;
         myFyle.close();
     }
+
+    // Free allocated memory
+    delete[] title;
+    delete[] year;
+    delete[] genre;
+    delete[] producer;
+    delete[] actors;
+    delete[] movie;
 }
 
-void SearchFilmByTitle()// za administrator i potrebiyel, za tyrsene na film po zaglavie
+ 
+void SearchFilmByTitle()
 {
     
-
 }
-void SearchFilmByGenre()// za administrator i potrebitel , tyrsene sprqmo zhanr
+
+void SearchFilmByGenre()
+{
+    
+}
+
+void SeeAllTheFilms()
 {
 
 }
-void SeeAllTheFilms()// za administrator i potrebitel, da se wivdat wsichi filmi
+
+void ChangeFilm()
 {
 
 }
-void ChangeFilm()//za administrator, promqna na film
+
+void DeleteFilm()
 {
 
 }
-void DeleteFilm()//za administrator, iztrivane na film
+
+void RateFilm()
 {
 
 }
-int RateFilm()//za potrebitel, ocenka na film(1-10)
-{
-    return 0;
-}
-void SortAndFilterFilms()// za administrator i potrebitel, sortirane i filtrirane na filmi
+
+void  SortFilmsByRating()
 {
 
 }
-void ExitProgram()//za administrator i potrebitel, izhod ot programata
+
+void  SortFilmsByTitle()
 {
-   
+
 }
 
+void ExitProgram()
+{
+    
+}
 
-void MenuForAdmin() // menu za wyzmovni izbori za administratotr
+void MenuForAdmin() 
 {
     int number;//number from the menu
     cout << "Which number from the menu dou you want to chose? ";
@@ -101,25 +213,31 @@ void MenuForAdmin() // menu za wyzmovni izbori za administratotr
         DeleteFilm();
         break;
     case 7: 
-        SortAndFilterFilms();
+        SortFilmsByRating();
         break;
-    case 8: 
+    case 8:
+        SortFilmsByTitle();
+        break;
+    case 9: 
         ExitProgram();
         break;
     default:
         cout << "Incorect input";
         break;
     }
-
-    //proverka dali cifrata sushtestvuva v menuto
- //case???? za vsicki wyzmovni izbora   
 }
-void MenuForUser() // menu za wyzmovni izbori za potrebitel
+void MenuForUser() 
 {
     int number;//number from the menu
-    cout << "Which number from the menu dou you want to chose? ";
+    cout << "Which number from the menu do you want to chose? ";
     cin >> number;
-    //proverka dali cifrata sushtestvuva v menuto
+   /* if (number < 1 && number>8)
+    {
+        cout << "Incorect input";
+        return -1;
+    }
+   */
+  
     switch (number)
     {
   
@@ -136,25 +254,27 @@ void MenuForUser() // menu za wyzmovni izbori za potrebitel
         RateFilm();
         break;
     case 5:
-        SortAndFilterFilms();
+        SortFilmsByRating();
         break;
-    case 6: 
+    case 6:
+        SortFilmsByTitle();
+        break;
+    case 7: 
         ExitProgram();
         break;
     default:
         cout << "Incorect input";
         break;
     }
-  //case???? za vsicki wyzmovni izbora
+ 
 }
-//funkciq, da priema ii glawni i malki
-// bukwi bez zna`nie, da ima edno i syshti znachenie
+
 
 int main()
 {
     char role; //admin or user
     cout << "What is your role: ";
-    cin >> role;//izbor na potrebitel ili na administrator
+    cin >> role;
     if (role=='a')
     {
         cout << "1. Add new film"<<endl;
@@ -164,7 +284,8 @@ int main()
         cout << "5. Change film" << endl;
         cout << "6. Delete film"<<endl;
         cout << "7. Sort films by rating" << endl;
-        cout << "8. Exit" << endl;
+        cout << "8. Sort films by title" << endl;
+        cout << "9. Exit" << endl;
 
         MenuForAdmin();
     }
@@ -175,7 +296,8 @@ int main()
         cout << "3. See all films" << endl;
         cout << "4. Rate film" << endl;
         cout << "5. Sort films by rating" << endl;
-        cout << "6. Exit" << endl;
+        cout << "6. Sort films by title" << endl;
+        cout << "7. Exit" << endl;
 
         MenuForUser();
     }
@@ -183,8 +305,5 @@ int main()
     {
         cout<<"Invalid input";
     }
-
-
-
 }
 
