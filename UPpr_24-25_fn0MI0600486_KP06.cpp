@@ -265,7 +265,34 @@ void SearchFilmByGenre()
 
 void SeeAllTheFilms()
 {
+    ifstream inputFile;
+    inputFile.open("IMDB.txt", fstream::in);
+    char ch;
 
+    if (!inputFile) {
+        cout << "Failed to open the file!" << endl;
+        return;
+    }
+
+    inputFile >> ch; // Try reading a character
+
+    // If EOF is reached immediately, the file is empty
+    if (inputFile.eof()) {
+        cout << "Empty movie DB!" << endl;
+        return;
+    }
+
+    // Move the cursor back to the beginning
+    inputFile.seekg(0);
+
+    // Read the file line by line
+    while (inputFile) {
+        char* line = ReadLine(inputFile);
+        cout << line << std::endl;
+        delete[] line;
+    }
+
+    inputFile.close();
 }
 
 void ChangeFilm()
@@ -280,7 +307,7 @@ void DeleteFilm()
 
 void RateFilm()
 {
-   
+    
 }
 
 void  SortFilmsByRating()
@@ -295,7 +322,7 @@ void  SortFilmsByTitle()
 
 void ExitProgram()
 {
-   
+    
 }
 
 void MenuForAdmin() 
