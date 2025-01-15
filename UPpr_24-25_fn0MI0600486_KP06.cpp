@@ -15,6 +15,8 @@
 #include <iostream>
 #include <fstream>
 #include<istream>
+#include <cstring>
+
 using namespace std;
 
 
@@ -158,7 +160,7 @@ char* ReadLine(std::ifstream& inputFile) {
 
     while (inputFile) {
         inputFile.getline(buffer + length, bufferSize - length); // Read into the remaining space
-        length += std::strlen(buffer + length);
+        length += strlen(buffer + length);
 
         if (inputFile.fail() && !inputFile.eof()) {
             // Expand the buffer if it's not enough
@@ -236,7 +238,7 @@ void SearchByElement(int elementNumber)
             char* element = GetMovieElement(line, '|', elementNumber);
             if (isContained(elementToSearchFor, element))
             {
-                cout << line << std::endl;
+                cout << line << endl;
                 moviesFound = true;
             }
             //delete[] title;
@@ -288,7 +290,7 @@ void SeeAllTheFilms()
     // Read the file line by line
     while (inputFile) {
         char* line = ReadLine(inputFile);
-        cout << line << std::endl;
+        cout << line << endl;
         delete[] line;
     }
 
@@ -297,11 +299,107 @@ void SeeAllTheFilms()
 
 void ChangeFilm()
 {
+   
+    ifstream inputFile("IMBD1.txt");
+    inputFile.open("IMDB1.txt", fstream::in);
 
+    //"Enter the title of the move you want to change"
+    //TO DO: make the program to choose the element you want to change
+    cout << "Enter the starting text to find: " << endl;
+    cin.ignore();
+    char* searchKey = ReadUserInput();
+    cout << "Enter the new content for the line: " << endl;
+    char* newContent = ReadUserInput();
+
+
+    if (!inputFile) {
+        cout << "Failed to open the file!" << endl;
+        return;
+    }
+
+
+    char lines[100][100]; // Assume max 100 lines for simplicity
+    int currentLine = 0;
+    bool lineModified = false;
+
+    // Read the file line by line into the array
+    
+    while (inputFile.getline(lines[currentLine], 100)) {
+        // Check if the line starts with the search key
+        if (!lineModified && std::strncmp(lines[currentLine], searchKey, std::strlen(searchKey)) == 0) {
+            // Replace the line with the new content
+            strncpy_s(lines[currentLine], newContent,100 - 1);
+            lines[currentLine][100 - 1] = '\0'; // Ensure null-termination
+            lineModified = true;
+        }
+        currentLine++;
+    }
+    inputFile.close();
+
+    if (!lineModified) {
+        cout << "Error: No line starting with '" << searchKey << "' was found.\n";
+        return;
+    }
+
+    // Write the updated lines back to the file
+    std::ofstream outputFile("IMDB1.txt");
+    if (!outputFile) {
+        cout << "Failed to open the file!" << endl;
+        return;
+    }
+
+    for (int i = 0; i < currentLine; i++) {
+        outputFile << lines[i] << '\n';
+    }
+    outputFile.close();
+    cout << "The line starting with '" << searchKey << "' has been updated successfully.\n";
 }
 
-void DeleteFilm()
+  
+
+//TO DO:make with dynamic memory
+void DeleteFilm(const char* searchKey)
 {
+    ifstream inputFile;
+    inputFile.open("IMDB1.txt", fstream::in);
+
+    if (!inputFile) {
+       cout<< "Failed to open the file!" << endl;
+        return;
+    }
+
+    char lines[100][100]; // Assume a maximum of 100 lines for simplicity
+    int currentLine = 0;
+    bool lineDeleted = false;
+
+    // Read the file line by line into the array
+    while (inputFile.getline(lines[currentLine], 100)) {
+        // Check if the line starts with the search key
+        if (!lineDeleted && std::strncmp(lines[currentLine], searchKey, std::strlen(searchKey)) == 0) {
+            lineDeleted = true; // Mark that a line has been deleted
+            continue; // Skip adding this line to the array
+        }
+        currentLine++;
+    }
+    inputFile.close();
+
+    if (!lineDeleted) {
+        cout << "Error: No line starting with '" << searchKey << "' was found.\n";
+        return;
+    }
+
+    // Write the updated lines back to the file
+    std::ofstream outputFile("IMDB1.txt");
+    if (!outputFile) {
+       cout << "Failed to open the file!" << endl;
+        return;
+    }
+
+    for (int i = 0; i < currentLine; i++) {
+        outputFile << lines[i] << '\n';
+    }
+    outputFile.close();
+    std::cout << "The line starting with '" << searchKey << "' has been deleted successfully.\n";
 
 }
 
@@ -312,7 +410,7 @@ void RateFilm()
 
 void  SortFilmsByRating()
 {
-
+   
 }
 
 void  SortFilmsByTitle()
@@ -322,7 +420,7 @@ void  SortFilmsByTitle()
 
 void ExitProgram()
 {
-    
+    exit(0);
 }
 
 void MenuForAdmin() 
@@ -330,6 +428,13 @@ void MenuForAdmin()
     int number;//number from the menu
     cout << "Which number from the menu dou you want to chose? ";
     cin >> number;
+
+    if (number < 1 && number>8)
+    {
+        cout << "Incorect input";
+        return;
+    }
+
     switch (number)
     {
     case 1: 
@@ -348,7 +453,7 @@ void MenuForAdmin()
         ChangeFilm();
         break;
     case 6: 
-        DeleteFilm();
+        //DeleteFilm();
         break;
     case 7: 
         SortFilmsByRating();
@@ -369,13 +474,13 @@ void MenuForUser()
     int number;//number from the menu
     cout << "Which number from the menu do you want to chose? ";
     cin >> number;
-   /* if (number < 1 && number>8)
+
+    if (number < 1 && number>8)
     {
         cout << "Incorect input";
-        return -1;
+        return;
     }
-   */
-  
+   
     switch (number)
     {
   
@@ -409,9 +514,10 @@ void MenuForUser()
 
 
 int main()
-{
+{ 
+    /*
     char role; //admin or user
-    cout << "What is your role: ";
+    cout << "What is your role:(a-administrator, u-user)";
     cin >> role;
     if (role=='a')
     {
@@ -443,5 +549,33 @@ int main()
     {
         cout<<"Invalid input";
     }
+  */
+
+
+    char searchKey[100];
+
+    std::cout << "Enter the starting text to delete: ";
+    std::cin.getline(searchKey, 100);
+
+   DeleteFilm(searchKey);
+
+    /*
+    //const char* filename = "IMBD1.txt";
+    //int lineToChange = 2;
+    //const char* newContent = "AAAAAAAAAA";
+    char searchKey[100];
+    char newContent[100];
+    cout << "Enter the starting text to find: ";
+    cin.getline(searchKey, 100);
+
+    cout << "Enter the new content for the line: ";
+    cin.getline(newContent, 100);
+
+   
+
+    ChangeFilm(searchKey, newContent);
+      */
+    return 0;
+
 }
 
