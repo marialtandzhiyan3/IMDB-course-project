@@ -15,20 +15,10 @@
 #include <iostream>
 #include <fstream>
 #include<istream>
-#include <cstring>
+//#include <cstring>
 
 using namespace std;
 
-
-void ReadArray(char *arr)
-{
-    int i = 0;
-    while (arr[i] != '\0')
-    {
-        cin >> arr[i];
-        i++;
-    }
-}
 
 size_t calculateSize(char* arr) {
     size_t count = 0;
@@ -57,6 +47,17 @@ bool isContained(char* subStr, char* mainStr) {
     }
 
     return false;
+}
+
+bool Arrays¿reEqual(char* arr1, char* arr2) {
+    size_t len1 = calculateSize(arr1), len2 = calculateSize(arr2);
+    if (len1 != len2) return false;
+
+    for (size_t i = 0; i < len1; ++i) {
+        if (arr1[i] != arr2[i]) return false;
+    }
+
+    return true;
 }
 
 char* ReadUserInput()
@@ -299,107 +300,153 @@ void SeeAllTheFilms()
 
 void ChangeFilm()
 {
-   
-    ifstream inputFile("IMBD1.txt");
-    inputFile.open("IMDB1.txt", fstream::in);
-
-    //"Enter the title of the move you want to change"
-    //TO DO: make the program to choose the element you want to change
-    cout << "Enter the starting text to find: " << endl;
-    cin.ignore();
-    char* searchKey = ReadUserInput();
-    cout << "Enter the new content for the line: " << endl;
-    char* newContent = ReadUserInput();
-
+    ifstream inputFile;
+    inputFile.open("IMDB.txt", fstream::in);
+    ofstream tempFile;
+    tempFile.open("temp.txt", fstream::out);
 
     if (!inputFile) {
         cout << "Failed to open the file!" << endl;
         return;
     }
 
+    cout << "Enter the title of the film you want to change: ";
+    cin.ignore();
+    char* titleToChange = ReadUserInput();
+    bool movieFound = false;
 
-    char lines[100][100]; // Assume max 100 lines for simplicity
-    int currentLine = 0;
-    bool lineModified = false;
+    // Read the file line by line
+    while (inputFile) {
+        char* line = ReadLine(inputFile);
+        if (*line != '\0') { // Skip empty lines
+            char* title = GetMovieElement(line, '|', 1);
+            if (Arrays¿reEqual(titleToChange, title))
+            {
+                cout << "Which element do you want to change?" << endl;
+                cout << "1. Title" << endl;
+                cout << "2. Year" << endl;
+                cout << "3. Genre" << endl;
+                cout << "4. Producer" << endl;
+                cout << "5. Actors" << endl;
+                cout << "6. Rating" << endl;
+                int choice;
+                cin >> choice;
+                cin.ignore(); // Ignore the newline character
 
-    // Read the file line by line into the array
-    
-    while (inputFile.getline(lines[currentLine], 100)) {
-        // Check if the line starts with the search key
-        if (!lineModified && std::strncmp(lines[currentLine], searchKey, std::strlen(searchKey)) == 0) {
-            // Replace the line with the new content
-            strncpy_s(lines[currentLine], newContent,100 - 1);
-            lines[currentLine][100 - 1] = '\0'; // Ensure null-termination
-            lineModified = true;
+                char* newElement;
+                cout << "Enter new value: ";
+                newElement = ReadUserInput();
+
+                char* year = GetMovieElement(line, '|', 2);
+                char* genre = GetMovieElement(line, '|', 3);
+                char* producer = GetMovieElement(line, '|', 4);
+                char* actors = GetMovieElement(line, '|', 5);
+                char* rating = GetMovieElement(line, '|', 6);
+
+                switch (choice) {
+                case 1:
+                    title = newElement;
+                    break;
+                case 2:
+                    year = newElement;
+                    break;
+                case 3:
+                    genre = newElement;
+                    break;
+                case 4:
+                    producer = newElement;
+                    break;
+                case 5:
+                    actors = newElement;
+                    break;
+                case 6:
+                    rating = newElement;
+                    break;
+                default:
+                    cout << "Invalid choice!" << endl;
+                    delete[] newElement;
+                    continue;
+                }
+
+                char* newMovie = ConcatCharArrays(title, year, genre, producer, actors, rating);
+                tempFile << newMovie << endl;
+                delete[] newMovie;
+                movieFound = true;
+            }
+            else
+            {
+                tempFile << line << endl;
+            }
         }
-        currentLine++;
+        delete[] line;
     }
+
+    if (!movieFound)
+    {
+        cout << "No such movie found." << endl;
+    }
+
     inputFile.close();
+    tempFile.close();
 
-    if (!lineModified) {
-        cout << "Error: No line starting with '" << searchKey << "' was found.\n";
-        return;
-    }
+    // Delete the original file and rename the temporary one
+    remove("IMDB.txt");
+    rename("temp.txt", "IMDB.txt");
 
-    // Write the updated lines back to the file
-    std::ofstream outputFile("IMDB1.txt");
-    if (!outputFile) {
-        cout << "Failed to open the file!" << endl;
-        return;
-    }
-
-    for (int i = 0; i < currentLine; i++) {
-        outputFile << lines[i] << '\n';
-    }
-    outputFile.close();
-    cout << "The line starting with '" << searchKey << "' has been updated successfully.\n";
 }
 
-  
-
-//TO DO:make with dynamic memory
-void DeleteFilm(const char* searchKey)
+ 
+void DeleteFilm()
 {
+    
     ifstream inputFile;
-    inputFile.open("IMDB1.txt", fstream::in);
+    inputFile.open("IMDB.txt", fstream::in);
+    ofstream tempFile;
+    tempFile.open("temp.txt", fstream::out);
 
     if (!inputFile) {
-       cout<< "Failed to open the file!" << endl;
+        cout << "Failed to open the file!" << endl;
         return;
     }
 
-    char lines[100][100]; // Assume a maximum of 100 lines for simplicity
-    int currentLine = 0;
-    bool lineDeleted = false;
+    cout << "Enter the title of the film you want to delete: ";
+    cin.ignore();
+    char* titleToDelete = ReadUserInput();
+    bool movieFound = false;
 
-    // Read the file line by line into the array
-    while (inputFile.getline(lines[currentLine], 100)) {
-        // Check if the line starts with the search key
-        if (!lineDeleted && std::strncmp(lines[currentLine], searchKey, std::strlen(searchKey)) == 0) {
-            lineDeleted = true; // Mark that a line has been deleted
-            continue; // Skip adding this line to the array
+    // Read the file line by line
+    while (inputFile) {
+        char* line = ReadLine(inputFile);
+        if (*line != '\0') { // Skip empty lines
+            char* title = GetMovieElement(line, '|', 1);
+            if (Arrays¿reEqual(titleToDelete, title)) {
+                cout << "Are you sure you want to delete this movie? (y/n): ";
+                char confirmation;
+                cin >> confirmation;
+                if (confirmation == 'y' || confirmation == 'Y') {
+                    movieFound = true;
+                }
+                else {
+                    tempFile << line << endl;
+                }
+            }
+            else {
+                tempFile << line << endl;
+            }
         }
-        currentLine++;
+        delete[] line;
     }
+
+    if (!movieFound) {
+        cout << "No such movie found." << endl;
+    }
+
     inputFile.close();
+    tempFile.close();
 
-    if (!lineDeleted) {
-        cout << "Error: No line starting with '" << searchKey << "' was found.\n";
-        return;
-    }
-
-    // Write the updated lines back to the file
-    std::ofstream outputFile("IMDB1.txt");
-    if (!outputFile) {
-       cout << "Failed to open the file!" << endl;
-        return;
-    }
-
-    for (int i = 0; i < currentLine; i++) {
-        outputFile << lines[i] << '\n';
-    }
-    outputFile.close();
-    std::cout << "The line starting with '" << searchKey << "' has been deleted successfully.\n";
+    // Delete the original file and rename the temporary one
+    remove("IMDB.txt");
+    rename("temp.txt", "IMDB.txt");
 
 }
 
@@ -453,7 +500,7 @@ void MenuForAdmin()
         ChangeFilm();
         break;
     case 6: 
-        //DeleteFilm();
+        DeleteFilm();
         break;
     case 7: 
         SortFilmsByRating();
@@ -515,11 +562,13 @@ void MenuForUser()
 
 int main()
 { 
-    /*
-    char role; //admin or user
-    cout << "What is your role:(a-administrator, u-user)";
-    cin >> role;
-    if (role=='a')
+    
+    char* role=new char; //admin or user
+    cout << "What is your role:(administrator or user) ";
+    ReadUserInput();
+    char administrator[] = "administrator";
+    char user[] = "user";
+    if (Arrays¿reEqual(role, administrator ))
     {
         cout << "1. Add new film"<<endl;
         cout << "2. Search film by title" << endl;
@@ -533,7 +582,7 @@ int main()
 
         MenuForAdmin();
     }
-    else if (role =='u')
+    else if (Arrays¿reEqual(user, role))
     {
         cout << "1. Search film by title" << endl;
         cout << "2. Search film by genre" << endl;
@@ -549,32 +598,10 @@ int main()
     {
         cout<<"Invalid input";
     }
-  */
+  
 
 
-    char searchKey[100];
-
-    std::cout << "Enter the starting text to delete: ";
-    std::cin.getline(searchKey, 100);
-
-   DeleteFilm(searchKey);
-
-    /*
-    //const char* filename = "IMBD1.txt";
-    //int lineToChange = 2;
-    //const char* newContent = "AAAAAAAAAA";
-    char searchKey[100];
-    char newContent[100];
-    cout << "Enter the starting text to find: ";
-    cin.getline(searchKey, 100);
-
-    cout << "Enter the new content for the line: ";
-    cin.getline(newContent, 100);
-
-   
-
-    ChangeFilm(searchKey, newContent);
-      */
+    delete[] role;
     return 0;
 
 }
