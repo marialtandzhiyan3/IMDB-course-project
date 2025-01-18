@@ -109,7 +109,7 @@ char* ConcatCharArrays(char* arr1, char* arr2, char* arr3, char* arr4, char* arr
     return result;
 }
 
-void AddNewFilm() 
+void AddNewMovie()
 {
     cin.ignore();
     cout << "Enter title:" << endl;
@@ -167,8 +167,7 @@ char* ReadLine(std::ifstream& inputFile) {
             // Expand the buffer if it's not enough
             inputFile.clear(); // Clear fail state
             bufferSize *= 2;   // Double the buffer size
-            char* newBuffer = new char[bufferSize];
-            //TO DO: write own strcpy 
+            char* newBuffer = new char[bufferSize]; 
             CopyCharArray(buffer, newBuffer, calculateSize(buffer));
             delete[] buffer; // Free the old buffer
             buffer = newBuffer;
@@ -256,17 +255,17 @@ void SearchByElement(int elementNumber)
     inputFile.close();
 }
 
-void SearchFilmByTitle()
+void SearchMovieByTitle()
 {
     SearchByElement(1);
 }
 
-void SearchFilmByGenre()
+void SearchMovieByGenre()
 {
     SearchByElement(3);
 }
 
-void SeeAllTheFilms()
+void SeeAllTheMovies()
 {
     ifstream inputFile;
     inputFile.open("IMDB.txt", fstream::in);
@@ -298,7 +297,7 @@ void SeeAllTheFilms()
     inputFile.close();
 }
 
-void ChangeFilm()
+void ChangeMovie()
 {
     ifstream inputFile;
     inputFile.open("IMDB.txt", fstream::in);
@@ -328,7 +327,7 @@ void ChangeFilm()
                 cout << "3. Genre" << endl;
                 cout << "4. Producer" << endl;
                 cout << "5. Actors" << endl;
-                cout << "6. Rating" << endl;
+               
                 int choice;
                 cin >> choice;
                 cin.ignore(); // Ignore the newline character
@@ -359,9 +358,6 @@ void ChangeFilm()
                 case 5:
                     actors = newElement;
                     break;
-                case 6:
-                    rating = newElement;
-                    break;
                 default:
                     cout << "Invalid choice!" << endl;
                     delete[] newElement;
@@ -391,12 +387,17 @@ void ChangeFilm()
 
     // Delete the original file and rename the temporary one
     remove("IMDB.txt");
-    rename("temp.txt", "IMDB.txt");
-
+    if (rename("temp.txt", "IMDB.txt"))
+    {
+        cout << "Changes are saved successfully";
+    }
+    else
+    {
+        cout << "An erros ocured while renaming the temp file";
+    }
 }
-
  
-void DeleteFilm()
+void DeleteMovie()
 {
     
     ifstream inputFile;
@@ -446,7 +447,15 @@ void DeleteFilm()
 
     // Delete the original file and rename the temporary one
     remove("IMDB.txt");
-    rename("temp.txt", "IMDB.txt");
+    if (rename("temp.txt", "IMDB.txt"))
+    {
+        cout << "Changes are saved successfully";
+    }
+    else
+    {
+        cout << "An erros ocured while renaming the temp file";
+    }
+
 
 }
 
@@ -455,12 +464,12 @@ void RateFilm()
     
 }
 
-void  SortFilmsByRating()
+void  SortMoviesByRating()
 {
    
 }
 
-void  SortFilmsByTitle()
+void  SortMoviesByTitle()
 {
 
 }
@@ -485,28 +494,28 @@ void MenuForAdmin()
     switch (number)
     {
     case 1: 
-        AddNewFilm();
+        AddNewMovie();
         break;
     case 2: 
-        SearchFilmByTitle();
+        SearchMovieByTitle();
         break;
     case 3:
-        SearchFilmByGenre();
+        SearchMovieByGenre();
         break;
     case 4: 
-        SeeAllTheFilms();
+        SeeAllTheMovies();
         break;
     case 5: 
-        ChangeFilm();
+        ChangeMovie();
         break;
     case 6: 
-        DeleteFilm();
+        DeleteMovie();
         break;
     case 7: 
-        SortFilmsByRating();
+        SortMoviesByRating();
         break;
     case 8:
-        SortFilmsByTitle();
+        SortMoviesByTitle();
         break;
     case 9: 
         ExitProgram();
@@ -516,6 +525,7 @@ void MenuForAdmin()
         break;
     }
 }
+
 void MenuForUser() 
 {
     int number;//number from the menu
@@ -532,22 +542,22 @@ void MenuForUser()
     {
   
     case 1:
-        SearchFilmByTitle();
+        SearchMovieByTitle();
         break;
     case 2:
-        SearchFilmByGenre();
+        SearchMovieByGenre();
         break;
     case 3: 
-        SeeAllTheFilms();
+        SeeAllTheMovies();
         break;
     case 4: 
         RateFilm();
         break;
     case 5:
-        SortFilmsByRating();
+        SortMoviesByRating();
         break;
     case 6:
-        SortFilmsByTitle();
+        SortMoviesByTitle();
         break;
     case 7: 
         ExitProgram();
@@ -559,37 +569,36 @@ void MenuForUser()
  
 }
 
-
 int main()
 { 
     
-    char* role=new char; //admin or user
-    cout << "What is your role:(administrator or user) ";
-    ReadUserInput();
-    char administrator[] = "administrator";
+     //admin or user
+    cout << "What is your role:(admin or user) ";
+    char* role=ReadUserInput();
+    char admin[] = "admin";
     char user[] = "user";
-    if (ArraysÀreEqual(role, administrator ))
+    if (ArraysÀreEqual(role, admin))
     {
-        cout << "1. Add new film"<<endl;
-        cout << "2. Search film by title" << endl;
-        cout << "3. Search film by genre" << endl;
-        cout << "4. See all films" << endl;
-        cout << "5. Change film" << endl;
-        cout << "6. Delete film"<<endl;
-        cout << "7. Sort films by rating" << endl;
-        cout << "8. Sort films by title" << endl;
+        cout << "1. Add new movie"<<endl;
+        cout << "2. Search movie by title" << endl;
+        cout << "3. Search movie by genre" << endl;
+        cout << "4. See all movies" << endl;
+        cout << "5. Change movie" << endl;
+        cout << "6. Delete movie"<<endl;
+        cout << "7. Sort movies by rating" << endl;
+        cout << "8. Sort movies by title" << endl;
         cout << "9. Exit" << endl;
 
         MenuForAdmin();
     }
-    else if (ArraysÀreEqual(user, role))
+    else if (ArraysÀreEqual(role, user))
     {
-        cout << "1. Search film by title" << endl;
-        cout << "2. Search film by genre" << endl;
-        cout << "3. See all films" << endl;
-        cout << "4. Rate film" << endl;
-        cout << "5. Sort films by rating" << endl;
-        cout << "6. Sort films by title" << endl;
+        cout << "1. Search movie by title" << endl;
+        cout << "2. Search movie by genre" << endl;
+        cout << "3. See all movies" << endl;
+        cout << "4. Rate movie" << endl;
+        cout << "5. Sort movies by rating" << endl;
+        cout << "6. Sort movies by title" << endl;
         cout << "7. Exit" << endl;
 
         MenuForUser();
