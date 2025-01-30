@@ -1,0 +1,7 @@
+Titanic|1997|drama|James Cameron|Leonardo DiCaprio,Kate Winslet|5|
+The Godfather|1972|drama|Albert S.Ruddy|Marlon Brando,Al Pacino|5.0|
+Avatar|2020|adventure|James Cameron|Sam Worthington,Zoe Saldana|5|
+Jurassic Park|1993|adventure|Kathleen Kennedy|Sam Neil,Jeff Goldblum|5|
+The Avengers|2012|action|Kevin Feige|Robert Downey Jr.,Chris Evans|5.5|
+It|2017|horror|Andy Muschietti|Bill karsgard,Jaeden Lieberher|4.0|
+Barbie|2023|comedy|Tom Arckerley|Margot Robbie,Ryan Gosling|7.0|
