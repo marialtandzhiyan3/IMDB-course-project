@@ -1,0 +1,7 @@
+Titanic,1,5
+The Godfather,2,5
+Avatar,1,5
+Jurassic Park,1,5
+The Avengers,2,5.5
+It,2,4
+Barbie,3,7
